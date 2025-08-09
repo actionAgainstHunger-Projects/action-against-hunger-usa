@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Against Hunger - Donate</title>
+    <!-- Tailwind CSS CDN for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font from Google Fonts for a clean, modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Apply Inter font family to the entire body */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Base styles for Lucide icons (used as inline SVGs) */
+        .lucide-icon {
+            display: inline-block;
+            width: 24px; /* Standard size */
+            height: 24px;
+            stroke-width: 2; /* Thickness of the lines */
+            stroke: currentColor; /* Inherit color from parent */
+            fill: none; /* No fill by default */
+            stroke-linecap: round; /* Rounded line caps */
+            stroke-linejoin: round; /* Rounded line joins */
+        }
+        /* Specific size for icons within the impact section */
+        .impact-icon {
+            width: 32px; /* Corresponds to h-8 w-8 Tailwind classes */
+            height: 32px;
+        }
+        /* Specific size for cryptocurrency icons */
+        .crypto-icon {
+            width: 40px; /* Corresponds to h-10 w-10 Tailwind classes */
+            height: 40px;
+        }
+        /* Tooltip styling for copy confirmation */
+        #tooltip {
+            position: fixed;
+            bottom: 2rem; /* 32px from the bottom */
+            left: 50%;
+            transform: translateX(-50%); /* Center horizontally */
+            padding: 0.5rem 1rem; /* 8px vertical, 16px horizontal padding */
+            background-color: rgb(31 41 55); /* Tailwind slate-800 */
+            color: white;
+            font-size: 0.875rem; /* Tailwind text-sm */
+            border-radius: 0.375rem; /* Tailwind rounded-md */
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); /* Tailwind shadow-lg */
+            transition: opacity 300ms ease-in-out; /* Smooth fade in/out */
+            opacity: 0; /* Initially hidden */
+            pointer-events: none; /* Allows clicks to pass through to elements behind it */
+            z-index: 1000; /* Ensures it's on top of other content */
+        }
+        /* Class to show the tooltip */
+        #tooltip.show {
+            opacity: 1;
+        }
+        /* Styling for modal overlays (background dimmer) */
+        .modal-overlay {
+            position: fixed; /* Fixed position relative to viewport */
+            inset: 0; /* Top, right, bottom, left all 0, covering the whole screen */
+            z-index: 50; /* Ensures it's above most content */
+            display: flex; /* Use flexbox for centering content */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            padding: 1rem; /* Padding around the modal content */
+            background-color: rgba(55, 65, 81, 0.75); /* Gray-800 with 75% opacity */
+        }
+        /* Styling for the modal content box */
+        .modal-content {
+            background-color: white;
+            border-radius: 0.75rem; /* Tailwind rounded-xl */
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); /* Tailwind shadow-2xl */
+            padding: 1.5rem; /* Tailwind p-6 */
+            width: 100%; /* Full width within its flex container */
+            max-width: 32rem; /* Max width of lg (512px) */
+            position: relative; /* Needed for absolute positioning of close button */
+        }
+        /* Styling for scrollable modal body content */
+        .modal-body {
+            max-height: 80vh; /* Max height 80% of viewport height */
+            overflow-y: auto; /* Enable vertical scrolling if content overflows */
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar Section: Sticky at the top with shadow (This is the ONE and ONLY navbar) -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Logo/Site Title -->
+                <div class="flex-shrink-0 flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">
+                        <span class="text-blue-600">Action</span> Against Hunger
+                    </h1>
+                </div>
+                <!-- Desktop Navigation Links -->
+                <div class="hidden md:flex md:space-x-8">
+                    <button id="about-us-nav-button" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">About Us</button>
+                    <button id="news-nav-button" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">News</button>
+                    <button id="admin-dashboard-nav-button" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Admin Dashboard</button>
+                </div>
+                <!-- Desktop Donate Button -->
+                <div class="hidden md:flex">
+                    <button
+                        id="navbar-donate-button"
+                        class="ml-8 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                        Donate
+                    </button>
+                </div>
+                <!-- Mobile menu button (hamburger icon) -->
+                <div class="-mr-2 flex md:hidden">
+                    <button
+                        id="mobile-menu-button"
+                        class="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                    >
+                        <span class="sr-only">Open main menu</span>
+                        <!-- Menu icon (hamburger) -->
+                        <svg id="menu-icon" class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                        <!-- Close icon (X) - initially hidden -->
+                        <svg id="close-icon" class="lucide-icon hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu Dropdown - initially hidden -->
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <button id="about-us-mobile-button" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">About Us</button>
+                <button id="news-mobile-button" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">News</button>
+                <button id="admin-dashboard-mobile-button" class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Admin Dashboard</button>
+                <button
+                    id="mobile-donate-button"
+                    class="w-full text-left bg-blue-600 text-white block px-3 py-2 rounded-md text-base font-medium mt-4"
+                >
+                    Donate
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Containers (pages) -->
+    <!-- Home Page Content -->
+    <div id="home-page-content">
+        <!-- Hero Section: Large banner with background image and call to action -->
+        <div class="relative bg-gray-900 h-[70vh] flex items-center justify-center text-white">
+            <img
+                src="https://placehold.co/1200x800/22c55e/ffffff?text=EXTREME+WEATHER'S+IMPACT+ON+HUNGER"
+                alt="A woman in a field of green crops"
+                class="absolute inset-0 w-full h-full object-cover opacity-60"
+            />
+            <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-4 drop-shadow-lg">
+                    EXTREME WEATHER'S IMPACT ON HUNGER
+                </h1>
+                <p class="text-xl md:text-2xl font-medium mb-8 max-w-2xl mx-auto drop-shadow-lg">
+                    Your support helps us provide life-saving assistance to communities affected by climate change.
+                </p>
+                <button
+                    id="hero-donate-button"
+                    class="inline-flex items-center justify-center px-8 py-4 border-2 border-transparent text-base font-bold rounded-full shadow-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors transform hover:scale-105"
+                >
+                    Donate Now
+                </button>
+            </div>
+        </div>
+
+        <!-- Impact Section: Highlights key achievements/stats -->
+        <div class="py-20 bg-gray-50 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto text-center">
+                <h2 class="text-base text-blue-600 font-semibold tracking-wide uppercase">Our Impact</h2>
+                <p class="mt-2 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                    Making a difference where it matters most.
+                </p>
+                <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Impact Card 1: 92% of donations -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition-transform duration-300">
+                        <div class="p-4 bg-blue-100 rounded-full inline-block">
+                            <!-- Heart Icon (inline SVG) for visual appeal -->
+                            <svg class="impact-icon text-blue-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                        </div>
+                        <h3 class="mt-4 text-xl font-bold text-gray-900">92% of donations</h3>
+                        <p class="mt-2 text-gray-600">
+                            Go directly to our programs, helping us save more lives.
+                        </p>
+                    </div>
+                    <!-- Impact Card 2: 21+ Million People -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition-transform duration-300">
+                        <div class="p-4 bg-blue-100 rounded-full inline-block">
+                            <!-- User Icon (inline SVG) for visual appeal -->
+                            <svg class="impact-icon text-blue-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <h3 class="mt-4 text-xl font-bold text-gray-900">21+ Million People</h3>
+                        <p class="mt-2 text-gray-600">
+                            Served with life-saving support in over 40 countries last year.
+                        </p>
+                    </div>
+                    <!-- Impact Card 3: Proven Results -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition-transform duration-300">
+                        <div class="p-4 bg-blue-100 rounded-full inline-block">
+                            <!-- ClipboardCheck Icon (inline SVG) for visual appeal -->
+                            <svg class="impact-icon text-blue-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M15 2H9a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Z"/><path d="m9 14 2 2 4-4"/></svg>
+                        </div>
+                        <h3 class="mt-4 text-xl font-bold text-gray-900">Proven Results</h3>
+                        <p class="mt-2 text-gray-600">
+                            Highly rated for accountability, transparency, and effective programming.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Our Work Section: Details on program areas -->
+        <div class="py-20 bg-white px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl text-center">
+                    Our Work in the Field
+                </h2>
+                <div class="mt-12 space-y-16">
+                    <!-- Section 1: Child Nutrition -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div class="order-2 md:order-1">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Combating Child Malnutrition</h3>
+                            <p class="text-lg text-gray-600 mb-4">
+                                We work tirelessly to identify and treat severe acute malnutrition in young children, providing therapeutic food and care to save lives.
+                            </p>
+                            <p class="text-lg text-gray-600">
+                                Our programs also focus on long-term prevention through education, health support, and access to clean water and sanitation.
+                            </p>
+                        </div>
+                        <div class="order-1 md:order-2 rounded-xl overflow-hidden shadow-2xl">
+                            <img
+                                src="https://placehold.co/685x685/D1E6F7/000000?text=Child+Nutrition"
+                                alt="A child being measured for malnutrition"
+                                class="w-full h-auto object-cover"
+                            />
+                        </div>
+                    </div>
+                    <!-- Section 2: Sustainable Farming -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div class="rounded-xl overflow-hidden shadow-2xl">
+                            <img
+                                src="https://placehold.co/685x685/D1E6F7/000000?text=Sustainable+Farming"
+                                alt="A woman tilling a field"
+                                class="w-full h-auto object-cover"
+                            />
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Empowering Communities Through Agriculture</h3>
+                            <p class="text-lg text-gray-600 mb-4">
+                                We empower farmers with the tools and training they need to grow their own food, build sustainable livelihoods, and become more resilient to climate shocks.
+                            </p>
+                            <p class="text-lg text-gray-600">
+                                This includes providing drought-resistant seeds, teaching new farming techniques, and helping communities manage their water resources effectively.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Section 3: Water and Sanitation -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div class="order-2 md:order-1">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Providing Clean Water and Sanitation</h3>
+                            <p class="text-lg text-gray-600 mb-4">
+                                Access to safe drinking water and proper sanitation is critical to preventing disease and malnutrition. We work in camps and communities to ensure people have what they need to stay healthy.
+                            </p>
+                            <p class="text-lg text-gray-600">
+                                Our teams install water systems, provide hygiene kits, and run health and sanitation awareness campaigns to combat the spread of illness.
+                            </p>
+                        </div>
+                        <div class="order-1 md:order-2 rounded-xl overflow-hidden shadow-2xl">
+                            <img
+                                src="https://placehold.co/584x489/D1E6F7/000000?text=Water+Trucking"
+                                alt="People lined up for water"
+                                class="w-full h-auto object-cover"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <footer class="bg-gray-800 text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-wrap justify-between items-start text-sm">
+                    <!-- Footer Column 1: About Organization -->
+                    <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                        <h3 class="text-xl font-bold mb-2 text-blue-600">Action Against Hunger</h3>
+                        <p class="text-gray-400">
+                            Fighting hunger worldwide with life-saving food, water, and sanitation.
+                        </p>
+                    </div>
+                    <!-- Footer Column 2: Connect Links -->
+                    <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                        <h4 class="font-semibold text-white mb-2">Connect</h4>
+                        <ul class="space-y-1 text-gray-400">
+                            <li><button class="footer-link hover:text-white transition-colors" data-modal-content="contact">Contact Us</button></li>
+                            <li><button class="footer-link hover:text-white transition-colors" data-modal-content="careers">Careers</button></li>
+                            <li><button class="footer-link hover:text-white transition-colors" data-modal-content="privacy">Privacy Policy</button></li>
+                        </ul>
+                    </div>
+                    <!-- Footer Column 3: Get Involved Links -->
+                    <div class="w-full md:w-1/3">
+                        <h4 class="font-semibold text-white mb-2">Get Involved</h4>
+                        <ul class="space-y-1 text-gray-400">
+                            <li><button class="footer-link hover:text-white transition-colors" data-modal-content="volunteer">Volunteer</button></li>
+                            <li><button class="footer-link hover:text-white transition-colors" data-modal-content="fundraise">Fundraise</button></li>
+                            <li><button class="footer-link hover:text-white transition-colors" data-modal-content="partner">Partner with Us</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Copyright Information -->
+                <div class="mt-8 pt-8 border-t border-gray-700 text-center text-sm text-gray-500">
+                    <p>&copy; 2025 Action Against Hunger. All Rights Reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Amount Selection Page: Hidden by default -->
+    <div id="amount-page" class="hidden flex flex-col min-h-screen bg-gray-50">
+        <div class="flex-grow p-4 sm:p-8 flex items-center justify-center">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-8">
+                <div class="flex items-center mb-6">
+                    <button id="back-to-home-button" class="text-slate-500 hover:text-slate-900 transition-colors p-2 -ml-2 rounded-full">
+                        <!-- Left Arrow Icon -->
+                        <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                    </button>
+                    <h2 class="text-2xl font-bold ml-4 text-gray-900">Choose an Amount</h2>
+                </div>
+                <!-- One-time vs Monthly Toggle -->
+                <div class="flex justify-around mb-6 bg-gray-100 p-1 rounded-full">
+                    <button
+                        id="one-time-button"
+                        class="flex-1 py-2 rounded-full font-medium transition-all bg-white text-blue-600 shadow-md"
+                    >
+                        One-time
+                    </button>
+                    <button
+                        id="monthly-button"
+                        class="flex-1 py-2 rounded-full font-medium transition-all text-gray-500 hover:text-gray-700"
+                    >
+                        Monthly
+                    </button>
+                </div>
+
+                <!-- Pre-set Donation Amount Buttons -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button data-amount="25" class="donation-amount-button p-4 border rounded-xl text-lg font-semibold transition-all duration-200 bg-white text-gray-900 border-gray-300 hover:border-blue-400 hover:shadow-md">
+                        $25
+                    </button>
+                    <button data-amount="50" class="donation-amount-button p-4 border rounded-xl text-lg font-semibold transition-all duration-200 bg-white text-gray-900 border-gray-300 hover:border-blue-400 hover:shadow-md">
+                        $50
+                    </button>
+                    <button data-amount="100" class="donation-amount-button p-4 border rounded-xl text-lg font-semibold transition-all duration-200 bg-white text-gray-900 border-gray-300 hover:border-blue-400 hover:shadow-md">
+                        $100
+                    </button>
+                    <button data-amount="250" class="donation-amount-button p-4 border rounded-xl text-lg font-semibold transition-all duration-200 bg-white text-gray-900 border-gray-300 hover:border-blue-400 hover:shadow-md">
+                        $250
+                    </button>
+                    <button data-amount="500" class="donation-amount-button p-4 border rounded-xl text-lg font-semibold transition-all duration-200 bg-white text-gray-900 border-gray-300 hover:border-blue-400 hover:shadow-md">
+                        $500
+                    </button>
+                    <div class="hidden"></div> <!-- Placeholder to maintain grid layout for odd number of buttons -->
+                </div>
+
+                <!-- Custom Amount Input -->
+                <div class="mt-4">
+                    <label for="custom-amount" class="block text-sm font-medium text-gray-700 mb-2">
+                        Or enter a custom amount
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <!-- Dollar Sign Icon -->
+                            <svg class="lucide-icon text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <input
+                            type="number"
+                            name="custom-amount"
+                            id="custom-amount-input"
+                            class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-lg p-3"
+                            placeholder="e.g., 1000"
+                        />
+                    </div>
+                </div>
+
+                <!-- Proceed to Dedication Button -->
+                <div class="mt-6">
+                    <button
+                        id="proceed-to-dedication-button"
+                        class="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50"
+                        disabled
+                    >
+                        Proceed to Dedication
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End of amount-page -->
+
+    <!-- Dedication Page: Hidden by default -->
+    <div id="dedication-page" class="hidden flex flex-col min-h-screen bg-gray-50">
+        <div class="flex-grow p-4 sm:p-8 flex items-center justify-center">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-8">
+                <div class="flex items-center mb-6">
+                    <button id="back-to-amount-button" class="text-slate-500 hover:text-slate-900 transition-colors p-2 -ml-2 rounded-full">
+                        <!-- Left Arrow Icon -->
+                        <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                    </button>
+                    <h2 class="text-2xl font-bold ml-4 text-gray-900">Dedicate Your Donation</h2>
+                </div>
+
+                <!-- Dedication Radio Options -->
+                <div class="space-y-4 mb-6">
+                    <label class="flex items-center p-4 border border-gray-300 rounded-xl cursor-pointer has-[:checked]:bg-blue-50 has-[:checked]:border-blue-600 has-[:checked]:ring-2 has-[:checked]:ring-blue-600 transition-all duration-200">
+                        <input type="radio" name="dedication" value="none" id="dedication-none" class="form-radio h-5 w-5 text-blue-600 focus:ring-blue-500" checked>
+                        <span class="ml-3 text-lg font-medium text-gray-900">No Dedication</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-300 rounded-xl cursor-pointer has-[:checked]:bg-blue-50 has-[:checked]:border-blue-600 has-[:checked]:ring-2 has-[:checked]:ring-blue-600 transition-all duration-200">
+                        <input type="radio" name="dedication" value="in-honor" id="dedication-in-honor" class="form-radio h-5 w-5 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-lg font-medium text-gray-900">In Honor Of</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-gray-300 rounded-xl cursor-pointer has-[:checked]:bg-blue-50 has-[:checked]:border-blue-600 has-[:checked]:ring-2 has-[:checked]:ring-blue-600 transition-all duration-200">
+                        <input type="radio" name="dedication" value="in-memory" id="dedication-in-memory" class="form-radio h-5 w-5 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-lg font-medium text-gray-900">In Memory Of</span>
+                    </label>
+                </div>
+
+                <!-- Dedication Name Input (conditionally visible) -->
+                <div id="dedication-name-field" class="mt-4 hidden">
+                    <label for="dedication-name-input" class="block text-sm font-medium text-gray-700 mb-2">
+                        Name for Dedication
+                    </label>
+                    <input
+                        type="text"
+                        name="dedication-name"
+                        id="dedication-name-input"
+                        class="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg p-3"
+                        placeholder="e.g., John Doe"
+                    />
+                </div>
+
+                <!-- Proceed to Payment Button -->
+                <div class="mt-6">
+                    <button
+                        id="proceed-to-payment-button"
+                        class="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    >
+                        Proceed to Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End of dedication-page -->
+
+    <!-- Crypto Selection Page: Hidden by default -->
+    <div id="crypto-selection-page" class="hidden flex flex-col min-h-screen bg-gray-50">
+        <div class="flex-grow p-4 sm:p-8 flex items-center justify-center">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-8">
+                <div class="flex items-center mb-6">
+                    <button id="back-to-dedication-button" class="text-slate-500 hover:text-slate-900 transition-colors p-2 -ml-2 rounded-full">
+                        <!-- Left Arrow Icon -->
+                        <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                    </button>
+                    <h2 class="text-2xl font-bold ml-4 text-gray-900">Choose Cryptocurrency</h2>
+                </div>
+
+                <!-- Crypto Buttons Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                    <!-- Bitcoin Button -->
+                    <button class="crypto-button p-4 border rounded-xl flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-blue-400 hover:shadow-md" data-crypto-id="btc" data-crypto-name="Bitcoin" data-crypto-address="bc1qp3ejudywwmnnxa0u9pkn2dqnpvd7sa56jf8vp2" style="border-color: #f7931a;">
+                        <!-- Bitcoin SVG Icon -->
+                        <svg class="crypto-icon" style="color: #f7931a;" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" fill-rule="evenodd">
+                                <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+                                <path fill="#FFF" d="M16.999 19.539c-.772.43-1.612.709-2.52.836v2.646h-2.14V19.82c-.426-.067-.84-.15-1.24-.25l.004-2.65c.39.1.768.204 1.13.313v-3.79c-.36-.108-.73-.21-1.11-.314l-.004-2.65c.4-.1.81-.184 1.23-.25V6.464h2.14v2.647c.908.127 1.748.406 2.52.836l.003-3.48h3.333l-.003 3.48c1.32.74 2.22 1.94 2.7 3.33l.003 1.09c-.48 1.39-1.38 2.59-2.7 3.33l-.003 3.48h-3.333l.003-3.48zm-1.803-1.03c1.07-.15 1.99-.48 2.76-.99l.003-2.63c-.77-.51-1.69-.84-2.76-.99v4.61zm0-6.17c1.07-.15 1.99-.48 2.76-.99l.003-2.63c-.77-.51-1.69-.84-2.76-.99v4.61z"/>
+                            </g>
+                        </svg>
+                        <span class="mt-2 text-sm font-medium text-gray-700">Bitcoin</span>
+                    </button>
+                    <!-- Ethereum Button -->
+                    <button class="crypto-button p-4 border rounded-xl flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-blue-400 hover:shadow-md" data-crypto-id="eth" data-crypto-name="Ethereum" data-crypto-address="0xc3a65C2d0C1B66509cd2A89C0ce4601eD79697cC" style="border-color: #627EEA;">
+                        <!-- Ethereum SVG Icon -->
+                        <svg class="crypto-icon" style="color: #627EEA;" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" fill-rule="evenodd">
+                                <circle cx="16" cy="16" r="16" fill="#627EEA"/>
+                                <path fill="#FFF" d="M16 3.65L8.038 16.002 16 28.354 23.962 16.002zM16 5.918l-6.28 10.084L16 26.086l6.28-10.084z"/>
+                            </g>
+                        </svg>
+                        <span class="mt-2 text-sm font-medium text-gray-700">Ethereum</span>
+                    </button>
+                    <!-- Litecoin Button -->
+                    <button class="crypto-button p-4 border rounded-xl flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-blue-400 hover:shadow-md" data-crypto-id="ltc" data-crypto-name="Litecoin" data-crypto-address="ltc1q67l0dnya579tmxfsyecdwy2qrrmu5gwfa58ecc" style="border-color: #345D9D;">
+                        <!-- Litecoin SVG Icon -->
+                        <svg class="crypto-icon" style="color: #345D9D;" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" fill-rule="evenodd">
+                                <circle cx="16" cy="16" r="16" fill="#345D9D"/>
+                                <path fill="#FFF" d="M12.984 21.016c-.75.42-1.56.69-2.45.81v2.58h-2.07v-2.58c-.41-.06-.78-.14-1.19-.24l.004-2.58c.38.1.74.2 1.09.3v-3.68c-.35-.1-.7-.2-1.07-.3l-.004-2.58c.39-.1.78-.18 1.18-.24V6.98h2.07v2.58c.88.12 1.7.39 2.45.81l.003-3.38h3.22l-.003 3.38c1.28.72 2.15 1.88 2.62 3.22l.003 1.06c-.47 1.34-1.34 2.5-2.62 3.22l-.003 3.38h-3.22l.003-3.38zm-1.746-1.002c1.03-.14 1.92-.47 2.66-.96l.003-2.55c-.74-.49-1.63-.82-2.66-.96v4.512zm0-5.99c1.03-.14 1.92-.47 2.66-.96l.003-2.55c-.74-.49-1.63-.82-2.66-.96v4.512z"/>
+                            </g>
+                        </svg>
+                        <span class="mt-2 text-sm font-medium text-gray-700">Litecoin</span>
+                    </button>
+                    <!-- Dogecoin Button -->
+                    <button class="crypto-button p-4 border rounded-xl flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-blue-400 hover:shadow-md" data-crypto-id="doge" data-crypto-name="Dogecoin" data-crypto-address="DH7iUtN3bzSvE4G7sD1phtbovW3GrSrLcT" style="border-color: #C2A633;">
+                        <!-- Dogecoin SVG Icon -->
+                        <svg class="crypto-icon" style="color: #C2A633;" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" fill-rule="evenodd">
+                                <circle cx="16" cy="16" r="16" fill="#C2A633"/>
+                                <path fill="#FFF" d="M16.002 14.156c-1.46 0-2.646 1.186-2.646 2.646 0 1.46 1.186 2.646 2.646 2.646 1.46 0 2.646-1.186 2.646-2.646 0-1.46-1.186-2.646-2.646-2.646zm0-1.746c2.41 0 4.392 1.982 4.392 4.392 0 2.41-1.982 4.392-4.392 4.392-2.41 0-4.392-1.982-4.392-4.392 0-2.41 1.982-4.392 4.392-4.392zM16.002 8.76c-3.21 0-5.814 2.604-5.814 5.814 0 3.21 2.604 5.814 5.814 5.814 3.21 0 5.814-2.604 5.814-5.814 0-3.21-2.604-5.814-5.814-5.814z"/>
+                            </g>
+                        </svg>
+                        <span class="mt-2 text-sm font-medium text-gray-700">Dogecoin</span>
+                    </button>
+                    <!-- XRP Button -->
+                    <button class="crypto-button p-4 border rounded-xl flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-blue-400 hover:shadow-md" data-crypto-id="xrp" data-crypto-name="XRP" data-crypto-address="rLa6m74o7dP2eAdbDXz4j1evj1khDi7M6G" style="border-color: #2C2F33;">
+                        <!-- XRP SVG Icon -->
+                        <svg class="crypto-icon" style="color: #2C2F33;" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" fill-rule="evenodd">
+                                <circle cx="16" cy="16" r="16" fill="#2C2F33"/>
+                                <path fill="#FFF" d="M16 3.65L8.038 16.002 16 28.354 23.962 16.002zM16 5.918l-6.28 10.084L16 26.086l6.28-10.084z"/>
+                            </g>
+                        </svg>
+                        <span class="mt-2 text-sm font-medium text-gray-700">XRP</span>
+                    </button>
+                    <!-- Solana Button -->
+                    <button class="crypto-button p-4 border rounded-xl flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-blue-400 hover:shadow-md" data-crypto-id="sol" data-crypto-name="Solana" data-crypto-address="BUXtU1o59Cht6zw3TufrX36LQc6FAQUquDeoUo9igMkJ" style="border-color: #14F195;">
+                        <!-- Solana SVG Icon -->
+                        <svg class="crypto-icon" style="color: #14F195;" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" fill-rule="evenodd">
+                                <circle cx="16" cy="16" r="16" fill="#14F195"/>
+                                <path fill="#FFF" d="M16.002 14.156c-1.46 0-2.646 1.186-2.646 2.646 0 1.46 1.186 2.646 2.646 2.646 1.46 0 2.646-1.186 2.646-2.646 0-1.46-1.186-2.646-2.646-2.646zm0-1.746c2.41 0 4.392 1.982 4.392 4.392 0 2.41-1.982 4.392-4.392 4.392-2.41 0-4.392-1.982-4.392-4.392 0-2.41 1.982-4.392 4.392-4.392zM16.002 8.76c-3.21 0-5.814 2.604-5.814 5.814 0 3.21 2.604 5.814 5.814 5.814 3.21 0 5.814-2.604 5.814-5.814 0-3.21-2.604-5.814-5.814-5.814z"/>
+                            </g>
+                        </svg>
+                        <span class="mt-2 text-sm font-medium text-gray-700">Solana</span>
+                    </button>
+                    <!-- Binance Coin Button -->
+                    <button class="crypto-button p-4 border rounded-xl flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-blue-400 hover:shadow-md" data-crypto-id="bnb" data-crypto-name="Binance Coin" data-crypto-address="0xc3a65C2d0C1B66509cd2A89C0ce4601eD79697cC" style="border-color: #F3BA2F;">
+                        <!-- Binance Coin SVG Icon -->
+                        <svg class="crypto-icon" style="color: #F3BA2F;" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" fill-rule="evenodd">
+                                <circle cx="16" cy="16" r="16" fill="#F3BA2F"/>
+                                <path fill="#FFF" d="M16 3.65L8.038 16.002 16 28.354 23.962 16.002zM16 5.918l-6.28 10.084L16 26.086l6.28-10.084z"/>
+                            </g>
+                        </svg>
+                        <span class="mt-2 text-sm font-medium text-gray-700">Binance Coin</span>
+                    </button>
+                    <!-- TON Button (Replaced Tether ERC20) -->
+                    <button class="crypto-button p-4 border rounded-xl flex flex-col items-center justify-center text-center transition-all duration-200 hover:border-blue-400 hover:shadow-md" data-crypto-id="ton" data-crypto-name="Toncoin" data-crypto-address="UQA9Hbdv6UH8aouUAL_jPiaeqE-9YAeqsw8WyUoGJXXejJMP" style="border-color: #0098EA;">
+                        <!-- TON SVG Icon -->
+                        <svg class="crypto-icon" style="color: #0098EA;" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" fill-rule="evenodd">
+                                <circle cx="16" cy="16" r="16" fill="#0098EA"/>
+                                <path fill="#FFF" d="M10.975 14.542l4.897-9.59 4.897 9.59-4.897 9.59zM10.975 14.542l-4.897-9.59L1.18 14.542l4.898 9.59zM21.025 14.542l4.897-9.59L30.82 14.542l-4.898 9.59z"/>
+                            </g>
+                        </svg>
+                        <span class="mt-2 text-sm font-medium text-gray-700">Toncoin</span>
+                    </button>
+                </div>
+                <!-- "Show more" button (initially hidden) - can be used for more crypto options -->
+                <button id="show-more-cryptos" class="w-full py-2 text-blue-600 font-medium hover:text-blue-800 transition-colors hidden">
+                    Show more cryptocurrencies
+                </button>
+
+                <!-- Selected Crypto Details: Hidden until a crypto is chosen -->
+                <div id="selected-crypto-details" class="mt-6 p-4 border border-gray-200 rounded-xl bg-gray-50 text-center hidden">
+                    <h3 id="selected-crypto-name" class="text-xl font-bold text-gray-900 mb-2"></h3>
+                    <img id="selected-crypto-qr" src="" alt="QR Code" class="mx-auto my-4 rounded-lg shadow-md" />
+                    <p class="text-gray-700 text-sm mb-2">Wallet Address:</p>
+                    <div class="relative bg-gray-100 p-3 rounded-lg break-all text-sm font-mono text-gray-800 flex items-center justify-between">
+                        <span id="selected-crypto-address"></span>
+                        <button id="copy-address-button" class="ml-2 p-1 rounded-md text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors">
+                            <!-- Copy Icon -->
+                            <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">
+                        Please send your donation to the address above.
+                    </p>
+                    <button
+                        id="i-have-donated-button"
+                        class="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors mt-6"
+                    >
+                        I have donated!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div> <!-- End of crypto-selection-page -->
+
+    <!-- Generic Info Modal: Used for About Us, News, Admin, and Footer Links -->
+    <div id="info-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="close-info-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <!-- X Icon to close modal -->
+                <svg class="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <h2 id="info-modal-title" class="text-2xl font-bold mb-4 text-gray-900"></h2>
+            <div id="info-modal-body" class="modal-body text-gray-700">
+                <!-- Content will be dynamically loaded here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Donation Confirmation Modal: Appears after "I have donated!" button click -->
+    <div id="donation-confirmation-modal" class="modal-overlay hidden">
+        <div class="modal-content text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Thank You for Your Donation!</h2>
+            <p class="text-lg text-gray-700 mb-6">
+                Your support makes a vital difference in the lives of those facing hunger. We truly appreciate your generosity.
+            </p>
+            <button
+                id="return-home-button"
+                class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+            >
+                Return to Homepage
+            </button>
+        </div>
+    </div>
+
+    <!-- Tooltip for copy functionality (hidden by default) -->
+    <div id="tooltip" class="hidden">Copied to clipboard!</div>
+
+    <!-- JavaScript for Mobile Menu, Page Navigation, and Modals -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Mobile Menu Logic ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+            const closeIcon = document.getElementById('close-icon');
+
+            if (mobileMenuButton && mobileMenu && menuIcon && closeIcon) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                    menuIcon.classList.toggle('hidden');
+                    closeIcon.classList.toggle('hidden');
+                });
+            }
+
+            // --- Modal Helper Functions ---
+            const showModal = (modalElement) => {
+                modalElement.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden'); // Prevent body scrolling
+            };
+
+            const hideModal = (modalElement) => {
+                modalElement.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden'); // Restore body scrolling
+            };
+
+            // --- Page Navigation Logic ---
+            const homePageContent = document.getElementById('home-page-content');
+            const amountPage = document.getElementById('amount-page');
+            const dedicationPage = document.getElementById('dedication-page');
+            const cryptoSelectionPage = document.getElementById('crypto-selection-page');
+
+            const heroDonateButton = document.getElementById('hero-donate-button');
+            const navbarDonateButton = document.getElementById('navbar-donate-button');
+            const mobileDonateButton = document.getElementById('mobile-donate-button');
+            const backToHomeButton = document.getElementById('back-to-home-button');
+            const proceedToDedicationButton = document.getElementById('proceed-to-dedication-button');
+            const backToAmountButton = document.getElementById('back-to-amount-button');
+            const proceedToPaymentButton = document.getElementById('proceed-to-payment-button');
+            const backToDedicationButton = document.getElementById('back-to-dedication-button');
+
+            // Function to manage page visibility
+            const showPage = (pageToShow) => {
+                homePageContent.classList.add('hidden');
+                amountPage.classList.add('hidden');
+                dedicationPage.classList.add('hidden');
+                cryptoSelectionPage.classList.add('hidden');
+
+                hideModal(document.getElementById('info-modal'));
+                hideModal(document.getElementById('donation-confirmation-modal'));
+
+                if (pageToShow === 'home') {
+                    homePageContent.classList.remove('hidden');
+                } else if (pageToShow === 'amount') {
+                    amountPage.classList.remove('hidden');
+                } else if (pageToShow === 'dedication') {
+                    dedicationPage.classList.remove('hidden');
+                } else if (pageToShow === 'crypto') {
+                    cryptoSelectionPage.classList.remove('hidden');
+                }
+            };
+
+            showPage('home');
+
+            if (heroDonateButton) heroDonateButton.addEventListener('click', () => showPage('amount'));
+            if (navbarDonateButton) navbarDonateButton.addEventListener('click', () => showPage('amount'));
+            if (mobileDonateButton) mobileDonateButton.addEventListener('click', () => showPage('amount'));
+            if (backToHomeButton) backToHomeButton.addEventListener('click', () => showPage('home'));
+            if (proceedToDedicationButton) proceedToDedicationButton.addEventListener('click', () => showPage('dedication'));
+            if (backToAmountButton) backToAmountButton.addEventListener('click', () => showPage('amount'));
+            if (proceedToPaymentButton) proceedToPaymentButton.addEventListener('click', () => showPage('crypto'));
+            if (backToDedicationButton) backToDedicationButton.addEventListener('click', () => showPage('dedication'));
+
+            // --- Amount Selection Logic ---
+            const oneTimeButton = document.getElementById('one-time-button');
+            const monthlyButton = document.getElementById('monthly-button');
+            const donationAmountButtons = document.querySelectorAll('.donation-amount-button');
+            const customAmountInput = document.getElementById('custom-amount-input');
+            const proceedAmountButton = document.getElementById('proceed-to-dedication-button');
+
+            let selectedDonationAmount = null;
+            let isMonthlyDonation = false;
+
+            const updateFrequencyButtons = () => {
+                if (isMonthlyDonation) {
+                    monthlyButton.classList.add('bg-white', 'text-blue-600', 'shadow-md');
+                    monthlyButton.classList.remove('text-gray-500', 'hover:text-gray-700');
+                    oneTimeButton.classList.remove('bg-white', 'text-blue-600', 'shadow-md');
+                    oneTimeButton.classList.add('text-gray-500', 'hover:text-gray-700');
+                } else {
+                    oneTimeButton.classList.add('bg-white', 'text-blue-600', 'shadow-md');
+                    oneTimeButton.classList.remove('text-gray-500', 'hover:text-gray-700');
+                    monthlyButton.classList.remove('bg-white', 'text-blue-600', 'shadow-md');
+                    monthlyButton.classList.add('text-gray-500', 'hover:text-gray-700');
+                }
+            };
+
+            const updateDonationAmountButtons = () => {
+                donationAmountButtons.forEach(button => {
+                    const amount = parseInt(button.dataset.amount);
+                    if (selectedDonationAmount === amount) {
+                        button.classList.add('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-lg');
+                        button.classList.remove('bg-white', 'text-gray-900', 'border-gray-300', 'hover:border-blue-400', 'hover:shadow-md');
+                    } else {
+                        button.classList.remove('bg-blue-600', 'text-white', 'border-blue-600', 'shadow-lg');
+                        button.classList.add('bg-white', 'text-gray-900', 'border-gray-300', 'hover:border-blue-400', 'hover:shadow-md');
+                    }
+                });
+                if (selectedDonationAmount || customAmountInput.value !== '') {
+                    proceedAmountButton.disabled = false;
+                } else {
+                    proceedAmountButton.disabled = true;
+                }
+            };
+
+            if (oneTimeButton) {
+                oneTimeButton.addEventListener('click', () => {
+                    isMonthlyDonation = false;
+                    updateFrequencyButtons();
+                });
+            }
+            if (monthlyButton) {
+                monthlyButton.addEventListener('click', () => {
+                    isMonthlyDonation = true;
+                    updateFrequencyButtons();
+                });
+            }
+
+            donationAmountButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    selectedDonationAmount = parseInt(button.dataset.amount);
+                    customAmountInput.value = '';
+                    updateDonationAmountButtons();
+                });
+            });
+
+            if (customAmountInput) {
+                customAmountInput.addEventListener('input', () => {
+                    selectedDonationAmount = null;
+                    updateDonationAmountButtons();
+                });
+            }
+
+            // --- Dedication Logic ---
+            const dedicationNoneRadio = document.getElementById('dedication-none');
+            const dedicationInHonorRadio = document.getElementById('dedication-in-honor');
+            const dedicationInMemoryRadio = document.getElementById('dedication-in-memory');
+            const dedicationNameField = document.getElementById('dedication-name-field');
+            const dedicationNameInput = document.getElementById('dedication-name-input');
+            const proceedDedicationButton = document.getElementById('proceed-to-payment-button');
+
+            let dedicationType = 'none';
+            let dedicationName = '';
+
+            const updateDedicationState = () => {
+                if (dedicationType === 'none') {
+                    dedicationNameField.classList.add('hidden');
+                    dedicationNameInput.value = '';
+                    dedicationName = '';
+                    proceedDedicationButton.disabled = false;
+                } else {
+                    dedicationNameField.classList.remove('hidden');
+                    proceedDedicationButton.disabled = dedicationNameInput.value.trim() === '';
+                }
+            };
+
+            if (dedicationNoneRadio) {
+                dedicationNoneRadio.addEventListener('change', () => {
+                    dedicationType = 'none';
+                    updateDedicationState();
+                });
+            }
+            if (dedicationInHonorRadio) {
+                dedicationInHonorRadio.addEventListener('change', () => {
+                    dedicationType = 'in-honor';
+                    updateDedicationState();
+                });
+            }
+            if (dedicationInMemoryRadio) {
+                dedicationInMemoryRadio.addEventListener('change', () => {
+                    dedicationType = 'in-memory';
+                    updateDedicationState();
+                });
+            }
+
+            if (dedicationNameInput) {
+                dedicationNameInput.addEventListener('input', () => {
+                    dedicationName = dedicationNameInput.value.trim();
+                    updateDedicationState();
+                });
+            }
+
+            // --- Crypto Selection Logic ---
+            const cryptoButtons = document.querySelectorAll('.crypto-button');
+            const selectedCryptoDetails = document.getElementById('selected-crypto-details');
+            const selectedCryptoName = document.getElementById('selected-crypto-name');
+            const selectedCryptoQr = document.getElementById('selected-crypto-qr');
+            const selectedCryptoAddress = document.getElementById('selected-crypto-address');
+            const copyAddressButton = document.getElementById('copy-address-button');
+            const tooltip = document.getElementById('tooltip');
+            const iHaveDonatedButton = document.getElementById('i-have-donated-button');
+
+            let currentSelectedCrypto = null;
+
+            // Updated cryptocurrency data with your provided wallet addresses (Tether ERC20 replaced with Toncoin)
+            const cryptoData = [
+                { id: 'btc', name: 'Bitcoin', address: 'bc1qp3ejudywwmnnxa0u9pkn2dqnpvd7sa56jf8vp2', color: '#f7931a' },
+                { id: 'eth', name: 'Ethereum', address: '0xc3a65C2d0C1B66509cd2A89C0ce4601eD79697cC', color: '#627EEA' },
+                { id: 'ltc', name: 'Litecoin', address: 'ltc1q67l0dnya579tmxfsyecdwy2qrrmu5gwfa58ecc', color: '#345D9D' },
+                { id: 'doge', name: 'Dogecoin', address: 'DH7iUtN3bzSvE4G7sD1phtbovW3GrSrLcT', color: '#C2A633' },
+                { id: 'xrp', name: 'XRP', address: 'rLa6m74o7dP2eAdbDXz4j1evj1khDi7M6G', color: '#2C2F33' },
+                { id: 'sol', name: 'Solana', address: 'BUXtU1o59Cht6zw3TufrX36LQc6FAQUquDeoUo9igMkJ', color: '#14F195' },
+                { id: 'bnb', name: 'Binance Coin', address: '0xc3a65C2d0C1B66509cd2A89C0ce4601eD79697cC', color: '#F3BA2F' },
+                { id: 'ton', name: 'Toncoin', address: 'UQA9Hbdv6UH8aouUAL_jPiaeqE-9YAeqsw8WyUoGJXXejJMP', color: '#0098EA' }, // Updated TON with correct address and logo
+            ];
+
+            const getQrCodeUrl = (address) => {
+                return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(address)}`;
+            };
+
+            const copyToClipboard = (text) => {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        tooltip.classList.add('show');
+                        setTimeout(() => tooltip.classList.remove('show'), 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy text (Clipboard API):', err);
+                        fallbackCopyToClipboard(text);
+                    });
+                } else {
+                    fallbackCopyToClipboard(text);
+                }
+            };
+
+            const fallbackCopyToClipboard = (text) => {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '0';
+                textArea.style.left = '0';
+                textArea.style.width = '2em';
+                textArea.style.height = '2em';
+                textArea.style.padding = '0';
+                textArea.style.border = 'none';
+                textArea.style.outline = 'none';
+                textArea.style.boxShadow = 'none';
+                textArea.style.background = 'transparent';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    tooltip.classList.add('show');
+                    setTimeout(() => tooltip.classList.remove('show'), 2000);
+                } catch (err) {
+                    console.error('Failed to copy text (execCommand):', err);
+                }
+                document.body.removeChild(textArea);
+            };
+
+            cryptoButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const cryptoId = button.dataset.cryptoId;
+                    currentSelectedCrypto = cryptoData.find(c => c.id === cryptoId);
+
+                    if (currentSelectedCrypto) {
+                        selectedCryptoName.textContent = currentSelectedCrypto.name;
+                        selectedCryptoAddress.textContent = currentSelectedCrypto.address;
+                        selectedCryptoQr.src = getQrCodeUrl(currentSelectedCrypto.address);
+                        selectedCryptoDetails.classList.remove('hidden');
+                    }
+
+                    cryptoButtons.forEach(btn => {
+                        btn.classList.remove('bg-blue-100', 'border-blue-600', 'ring-2', 'ring-blue-600');
+                        btn.classList.add('bg-white', 'border-gray-300');
+                    });
+                    button.classList.add('bg-blue-100', 'border-blue-600', 'ring-2', 'ring-blue-600');
+                    button.classList.remove('bg-white', 'border-gray-300');
+                });
+            });
+
+            if (copyAddressButton) {
+                copyAddressButton.addEventListener('click', () => {
+                    if (currentSelectedCrypto) {
+                        copyToClipboard(currentSelectedCrypto.address);
+                    }
+                });
+            }
+
+            // --- Generic Info Modal Logic ---
+            const infoModal = document.getElementById('info-modal');
+            const infoModalTitle = document.getElementById('info-modal-title');
+            const infoModalBody = document.getElementById('info-modal-body');
+            const closeInfoModalButton = document.getElementById('close-info-modal');
+
+            const infoContent = {
+                'about': {
+                    title: 'About Us',
+                    body: `
+                        <p class="mb-4">
+                            Action Against Hunger is a global humanitarian organization that takes decisive action against the causes and effects of hunger. We save the lives of malnourished children, ensure families have access to clean water, food, training, and healthcare, and we work with communities to find sustainable solutions to hunger.
+                        </p>
+                        <p class="mb-4">
+                            For over 40 years, we've been on the front lines, responding to emergencies and building resilience in vulnerable communities. Our teams are committed to transparency, accountability, and delivering life-saving programs with maximum impact.
+                        </p>
+                        <p>
+                            Learn more about our mission, values, and how your support makes a difference in the lives of millions.
+                        </p>
+                    `
+                },
+                'news': {
+                    title: 'Latest News & Updates',
+                    body: `
+                        <ul class="list-disc list-inside space-y-3">
+                            <li><strong class="font-semibold">August 8, 2025:</strong> Urgent appeal as acute malnutrition in Gaza children hits record high. Humanitarian funding remains dire globally.</li>
+                            <li><strong class="font-semibold">August 7, 2025:</strong> UN warns on Afghan returnees, highlighting immediate humanitarian support needs for rebuilding lives.</li>
+                            <li><strong class="font-semibold">August 6, 2025:</strong> Reports confirm only 1.5% of Gaza's agricultural land accessible; contributing to famine-like conditions.</li>
+                            <li><strong class="font-semibold">July 28, 2025:</strong> New SOFI 2025 report reveals global hunger declines, but rises sharply in Africa and Western Asia, impacted by climate change and conflict.</li>
+                            <li><strong class="font-semibold">June 16, 2025:</strong> FAO and WFP warn of worsening hunger in 13 global hotspots, with Sudan, Palestine, and South Sudan at immediate risk of starvation.</li>
+                            <li><strong class="font-semibold">February 28, 2025:</strong> Action Against Hunger forced to halt over 50 projects in 20 countries due to significant funding cuts.</li>
+                            <li><strong class="font-semibold">January 15, 2025:</strong> Innovations in gut health research show promise in developing new treatments for global hunger challenges.</li>
+                        </ul>
+                        <p class="mt-6">
+                            Stay tuned for more updates on our ongoing efforts and impact around the world.
+                        </p>
+                    `
+                },
+                'admin': {
+                    title: 'Admin Dashboard (Placeholder)',
+                    body: `
+                        <p class="mb-4">
+                            This is a placeholder for the Admin Dashboard. In a full application, this section would allow administrators to view and manage donations, user data, and other operational aspects.
+                        </p>
+                        <p>
+                            For this static HTML version, this modal serves as a visual representation of where such functionality would reside.
+                        </p>
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <p class="text-blue-800 font-semibold">Current User ID: <span id="current-user-id">Not Available (requires Firebase)</span></p>
+                            <p class="text-blue-800 text-sm mt-2">
+                                In a real application, this would display the authenticated user's ID and potentially a list of pending donations for review.
+                            </p>
+                        </div>
+                    `
+                },
+                'contact': {
+                    title: 'Contact Us',
+                    body: `
+                        <p class="mb-4">
+                            Have questions or need assistance? Our team is here to help.
+                        </p>
+                        <p class="mb-4">
+                            <strong>Email:</strong> info@actionagainsthunger.org
+                        </p>
+                        <p class="mb-4">
+                            <strong>Phone:</strong> +1 (212) 967-7800
+                        </p>
+                        <p>
+                            <strong>Address:</strong> 123 Hunger Relief St, Global City, GC 12345
+                        </p>
+                        <p class="mt-4 text-sm text-gray-500">
+                            Please note: This is placeholder contact information.
+                        </p>
+                    `
+                },
+                'careers': {
+                    title: 'Careers',
+                    body: `
+                        <p class="mb-4">
+                            Join our passionate team and make a difference in the fight against hunger. We offer diverse opportunities in humanitarian aid, program management, finance, communications, and more.
+                        </p>
+                        <p class="mb-4">
+                            We are looking for dedicated professionals who are committed to our mission and values.
+                        </p>
+                        <p>
+                            Visit our official careers portal for current openings and application details.
+                        </p>
+                        <p class="mt-4 text-sm text-gray-500">
+                            Please note: This is placeholder career information.
+                        </p>
+                    `
+                },
+                'privacy': {
+                    title: 'Privacy Policy',
+                    body: `
+                        <p class="mb-4">
+                            Your privacy is important to us. This policy explains how we collect, use, and protect your personal information when you interact with our website and services.
+                        </p>
+                        <p class="mb-4">
+                            We are committed to transparent data practices and ensuring the security of your information. We do not sell or share your personal data with third parties for marketing purposes.
+                        </p>
+                        <p>
+                            By using our site, you agree to the terms outlined in this policy.
+                        </p>
+                        <p class="mt-4 text-sm text-gray-500">
+                            Please note: This is a simplified placeholder privacy policy.
+                        </p>
+                    `
+                },
+                'volunteer': {
+                    title: 'Volunteer',
+                    body: `
+                        <p class="mb-4">
+                            Your time and skills can make a significant impact! We welcome volunteers who are eager to contribute to our mission, whether through local events, administrative support, or advocacy.
+                        </p>
+                        <p class="mb-4">
+                            Volunteering with Action Against Hunger is a rewarding way to directly support communities in need and raise awareness about global hunger.
+                        </p>
+                        <p>
+                            Fill out our volunteer interest form, and we'll connect you with opportunities that match your interests and availability.
+                        </p>
+                        <p class="mt-4 text-sm text-gray-500">
+                            Please note: This is placeholder volunteer information.
+                        </p>
+                    `
+                },
+                'fundraise': {
+                    title: 'Fundraise',
+                    body: `
+                        <p class="mb-4">
+                            Become a fundraiser for Action Against Hunger and mobilize your community to fight hunger! Whether you run a marathon, host a bake sale, or organize an online campaign, every effort helps.
+                        </p>
+                        <p class="mb-4">
+                            We provide resources and support to help you make your fundraising event a success. Your creativity can bring vital funds to our life-saving programs.
+                        </p>
+                        <p>
+                            Get started today by registering your fundraising event or campaign on our platform.
+                        </p>
+                        <p class="mt-4 text-sm text-gray-500">
+                            Please note: This is placeholder fundraising information.
+                        </p>
+                    `
+                },
+                'partner': {
+                    title: 'Partner with Us',
+                    body: `
+                        <p class="mb-4">
+                            We believe in the power of collaboration to achieve a world free from hunger. We partner with corporations, foundations, government agencies, and other non-profits to amplify our impact.
+                        </p>
+                        <p class="mb-4">
+                            Strategic partnerships enable us to expand our reach, innovate solutions, and strengthen our programs in the most vulnerable regions.
+                        </p>
+                        <p>
+                            If your organization shares our commitment to ending hunger, we invite you to explore partnership opportunities with us.
+                        </p>
+                        <p class="mt-4 text-sm text-gray-500">
+                            Please note: This is placeholder partnership information.
+                        </p>
+                    `
+                }
+            };
+
+            const showInfoModal = (contentType) => {
+                const content = infoContent[contentType];
+                if (content) {
+                    infoModalTitle.textContent = content.title;
+                    infoModalBody.innerHTML = content.body;
+                    showModal(infoModal);
+                    mobileMenu.classList.add('hidden');
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                }
+            };
+
+            const navbarButtons = document.querySelectorAll('#about-us-nav-button, #news-nav-button, #admin-dashboard-nav-button');
+            navbarButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const id = button.id;
+                    let contentType;
+                    if (id.includes('about-us')) contentType = 'about';
+                    else if (id.includes('news')) contentType = 'news';
+                    else if (id.includes('admin-dashboard')) contentType = 'admin';
+                    showInfoModal(contentType);
+                });
+            });
+
+            const mobileButtons = document.querySelectorAll('#about-us-mobile-button, #news-mobile-button, #admin-dashboard-mobile-button');
+            mobileButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const id = button.id;
+                    let contentType;
+                    if (id.includes('about-us')) contentType = 'about';
+                    else if (id.includes('news')) contentType = 'news';
+                    else if (id.includes('admin-dashboard')) contentType = 'admin';
+                    showInfoModal(contentType);
+                });
+            });
+
+            const footerLinks = document.querySelectorAll('.footer-link');
+            footerLinks.forEach(button => {
+                button.addEventListener('click', () => {
+                    const contentType = button.dataset.modalContent;
+                    showInfoModal(contentType);
+                });
+            });
+
+            if (closeInfoModalButton) closeInfoModalButton.addEventListener('click', () => hideModal(infoModal));
+
+            // --- Donation Confirmation Modal Logic ---
+            const donationConfirmationModal = document.getElementById('donation-confirmation-modal');
+            const returnHomeButton = document.getElementById('return-home-button');
+
+            if (iHaveDonatedButton) {
+                iHaveDonatedButton.addEventListener('click', () => {
+                    showModal(donationConfirmationModal);
+                });
+            }
+
+            if (returnHomeButton) {
+                returnHomeButton.addEventListener('click', () => {
+                    hideModal(donationConfirmationModal);
+                    showPage('home');
+                });
+            }
+
+            // --- Initial State Updates for forms/buttons ---
+            updateFrequencyButtons();
+            updateDonationAmountButtons();
+            updateDedicationState();
+        });
+    </script>
+</body>
+</html>
